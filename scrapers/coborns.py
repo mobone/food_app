@@ -5,7 +5,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import re
 from time import sleep
 import pprint
-
+from pymongo import MongoClient
+import sys
 
 class coborns_scraper(object):
     def __init__(self):
@@ -93,7 +94,7 @@ class coborns_scraper(object):
                 value = fact[cutoff.span()[0]:cutoff.span()[1]]
                 if '*' in key:
                     break
-                nutrition_facts_dict[key] = value
+                nutrition_facts_dict[key] = float(value)
             except:
                 pass
 
