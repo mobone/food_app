@@ -9,10 +9,18 @@ import pprint
 
 class coborns_scraper(object):
     def __init__(self):
+        self.client = MongoClient()
+        self.db = self.client['products']
+        self.db_collection = self.db['coborns_products']
+
+        resp = input('Are you sure to delete?')
+        if 'y' in resp:
+            print('deleting')
+            self.db_collection.remove({})
 
         self.driver = webdriver.Chrome()
         self.zip_code = '55420'
-        self.store_name = 'Cub Foods'
+        self.store_name = 'Coborns'
         self.run()
 
     def run(self):
@@ -21,16 +29,14 @@ class coborns_scraper(object):
         categories.find_elements_by_tag_name('li')[-1:][0].click()
         categories = self.driver.find_element_by_class_name('bsw-page-head-categories')
         categories = categories.find_elements_by_tag_name('li')
+
         categories_texts = []
         for i in categories:
             categories_texts.append(i.text)
 
         for category in categories_texts:
-
-
             self.get_category(category)
             self.get_main_page()
-
 
     def get_main_page(self):
         self.driver.get('https://www.cobornsdelivers.com/areasolrsearch.action?facilityId=100&catalog=PRODUCTS&areaId=4433&locationCode=NAV_CATALOG')
@@ -73,9 +79,9 @@ class coborns_scraper(object):
             product_dict = self.get_nutrition_dict(nutrion_facts.text)
             product_dict = self.get_product_info(product_dict)
             print(product_dict)
+            self.store_item(product_dict)
         except Exception as e:
             return None
-
 
     def get_nutrition_dict(self, nutrition_facts):
         nutrition_facts_list = nutrition_facts.split('\n')
@@ -100,8 +106,14 @@ class coborns_scraper(object):
         product_dict['Product ID'] = product_id
         product_dict['Product Price'] = product_price
         product_dict['Product Name'] = product_name
+        product_dict['_id'] = product_name+' ~ '+product_id
         return product_dict
 
+    def store_item(self, product_dict):
+        try:
+            post_id = self.db_collection.insert_one(product_dict)
+        except Exception as e:
+            print('dupicate id', nutrition_facts_dict['Item Number'])
 
 
 coborns_scraper()
