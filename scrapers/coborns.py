@@ -51,7 +51,7 @@ class coborns_scraper(object):
                 num_of_items = len(self.driver.find_elements_by_class_name('bsw-lists-grid-item'))
                 if num_of_items>last_num_of_items:
                     break
-            if num_of_items>100:
+            if num_of_items>10:
                 break
 
         item_links = self.get_item_links()
@@ -63,7 +63,6 @@ class coborns_scraper(object):
         items = self.driver.find_elements_by_class_name('bsw-lists-grid-item')
         for i in items:
             item_links.append(i.find_element_by_tag_name('a').get_attribute('href'))
-
         return item_links
 
     def get_item(self, item_link):
@@ -71,9 +70,12 @@ class coborns_scraper(object):
         try:
             self.driver.find_element_by_link_text('Nutrition').click()
             nutrion_facts = self.driver.find_element_by_class_name('bsw-nutrition-facts')
-            self.get_nutrition_dict(nutrion_facts.text)
+            product_dict = self.get_nutrition_dict(nutrion_facts.text)
+            product_dict = self.get_product_info(product_dict)
+            print(product_dict)
         except Exception as e:
             return None
+
 
     def get_nutrition_dict(self, nutrition_facts):
         nutrition_facts_list = nutrition_facts.split('\n')
@@ -88,8 +90,17 @@ class coborns_scraper(object):
                 nutrition_facts_dict[key] = value
             except:
                 pass
-        print(nutrition_facts_dict)
 
+        return nutrition_facts_dict
+
+    def get_product_info(self, product_dict):
+        product_id = self.driver.find_element_by_class_name('bsw-product-id').text.split(': ')[1]
+        product_price = self.driver.find_element_by_class_name('bsw-product-price').text
+        product_name = self.driver.find_element_by_class_name('bsw-product-name').text
+        product_dict['Product ID'] = product_id
+        product_dict['Product Price'] = product_price
+        product_dict['Product Name'] = product_name
+        return product_dict
 
 
 
