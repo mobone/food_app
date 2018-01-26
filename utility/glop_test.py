@@ -2,7 +2,7 @@
 from ortools.linear_solver import pywraplp
 import pandas as pd
 
-
+"""
 with open('test_data.csv', 'r') as f:
     data = f.readlines()
 data = [x.strip() for x in data]
@@ -12,15 +12,21 @@ for row in data:
     row_items = list(map(float, row_items))
     rows.append(row_items)
 data = rows
-
-
+"""
+data = pd.read_csv('normalized_test_data.csv').values
+print(data)
 nutrients = [
-    ['Calories', 2],
+    ['Calories', 2000],
     ['Protein', 50],
     ['Fat', 70],
     ['Carbohydrates', 310],
     ['Sugar', 90],
-    ['Sodium', 2300]]
+    ['Sodium', 2300],
+    ['Vitamin A', 100],
+    ['Vitamin C', 100],
+    ['Calcium', 100],
+    ['Iron', 100]]
+
 
 solver = pywraplp.Solver('SolveStigler', pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
 
@@ -49,17 +55,17 @@ print(dir(solver))
 if status == solver.OPTIMAL:
     # Display the amounts (in dollars) to purchase of each food.
     price = 0
-    num_nutrients = len(data[i]) - 2
-    nutrients = [0] * (len(data[i]) - 2)
+    num_nutrients = len(data[i]) - 3
+    nutrients = [0] * (len(data[i]) - 3)
     for i in range(0, len(data)):
         price += food[i].solution_value()
 
 
         for nutrient in range(0, num_nutrients):
-            nutrients[nutrient] += data[i][nutrient+2] * food[i].solution_value()
+            nutrients[nutrient] += data[i][nutrient+3] * food[i].solution_value()
 
         if food[i].solution_value() > 0:
-            print("%s = %f" % (data[i][0], food[i].solution_value()))
+            print("%s = %f" % (data[i][1], food[i].solution_value()))
 
     print('Optimal annual price: $%.2f' % (365 * price))
 else:  # No optimal solution was found.
