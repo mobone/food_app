@@ -44,6 +44,7 @@ for i in range(0, len(nutrients)):
 
 
 status = solver.Solve()
+print(dir(solver))
 
 if status == solver.OPTIMAL:
     # Display the amounts (in dollars) to purchase of each food.
